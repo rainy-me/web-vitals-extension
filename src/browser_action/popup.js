@@ -14,7 +14,7 @@
 import { loadLocalMetrics, getOptions } from './chrome.js';
 import { CrUX } from './crux.js';
 import { LCP, FID, CLS } from './metric.js';
-
+import './html2canvas.min.js';
 
 class Popup {
 
@@ -43,6 +43,7 @@ class Popup {
     this.initTimestamp();
     this.initMetrics();
     this.initFieldData();
+    this.initScreenshot();
   }
 
   initStatus() {
@@ -81,11 +82,24 @@ class Popup {
   initFieldData() {
     const formFactor = this.options.preferPhoneField ? CrUX.FormFactor.PHONE : CrUX.FormFactor.DESKTOP;
     CrUX.load(this.location.url, formFactor).then(fieldData => {
+      if (!fieldData) return
       console.log('CrUX data', fieldData);
       this.renderFieldData(fieldData, formFactor);
     }).catch(e => {
       console.warn('Unable to load any CrUX data', e);
       this.setStatus('Local metrics only (field data unavailable)');
+    });
+  }
+
+  initScreenshot() {
+    document.querySelector('h1').addEventListener('click', () => {
+      html2canvas(document.body)
+        .then(canvas => {
+          const link = document.createElement('a');
+          link.download = `${location.href}.png`;
+          link.href = canvas.toDataURL();
+          link.click();
+        });
     });
   }
 

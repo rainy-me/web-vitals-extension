@@ -10,6 +10,9 @@ export class CrUX {
     const urlHelper = new URL(pageUrl);
     const url = urlHelper.href;
     const origin = urlHelper.origin;
+    // idk why this extension is trying to access chrome:// or chrome-extension:// here?
+    // not sure this does the fix.
+    if (!urlHelper.protocol.startsWith('http')) return
 
     return CrUX.query({url, formFactor}).catch(e =>{
       console.warn('CrUX URL data unavailable', e);
